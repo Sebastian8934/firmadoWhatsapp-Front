@@ -11,6 +11,7 @@ import Container from '@mui/material/Container';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import config from "./config/config.json"
 
 function Copyright(props) {
   return (
@@ -28,56 +29,72 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignIn() {
-const [ dNumber, setDNumber] = React.useState([]);
-const [ password, setPassword] = React.useState([]);
-const [ isDigital, setIsDigital] = React.useState(true);
-const [ dni, setDni ] = React.useState([]); 
-  const handleSubmit = async(event) => {
+  const [dNumber, setDNumber] = React.useState([]);
+  const [password, setPassword] = React.useState([]);
+  const [isDigital, setIsDigital] = React.useState(true);
+  const [dni, setDni] = React.useState([]);
+
+  const changeSubmit = () => {
+    if (isDigital) {
+      setIsDigital(!isDigital)
+    } else {
+      setIsDigital(!isDigital)
+    }
+  }
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (isDigital === true) {
-      console.log(isDigital);
-      let res = await fetch('http://192.168.1.111:90/v1/signature/', {
+    if (isDigital) {
+      let res = await fetch(config.ipMachine + 'signature/', {
         method: 'POST',
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-        isDigital: isDigital,
-        numeroDocumento: dNumber,
-        clave: password,
-        dni: dni
-        
+          isDigital: isDigital,
+          numeroDocumento: dNumber,
+          clave: password,
+          dni: dni
+
         })
-    })
-    if (res.status === 200) {
-    }else{
+      })
+      if (res.status === 200) {
+        alert('Documento firmado y enviado exitosamente')
+        setDNumber('')
+        setPassword('')
+        setDni('')
+      } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
         setDni('')
-    }
-    }else{
-      let res = await fetch('http://192.168.1.111:90/v1/signature/', {
+      }
+    } else {
+      let res = await fetch(config.ipMachine + 'signature/', {
         method: 'POST',
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           isDigital: isDigital,
           dni: dni
         })
-    })
-    if (res.status === 200) {
-    }else{
+      })
+      if (res.status === 200) {
+        alert('Documento firmado y enviado exitosamente')
+        setDNumber('')
+        setPassword('')
+        setDni('')
+      } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
         setDni('')
+      }
     }
-    }
-    
+
   };
 
   return (
@@ -98,8 +115,8 @@ const [ dni, setDni ] = React.useState([]);
           <Typography component="h1" variant="h5">
             ¡Bienvenido!
           </Typography>
-          
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 } }>
+
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -111,7 +128,7 @@ const [ dni, setDni ] = React.useState([]);
               autoFocus
               value={dNumber}
               onChange={(e) => setDNumber(e.currentTarget.value)}
-              sx={{display: isDigital === false ? 'none': 'flex'  }}
+              sx={{ display: isDigital === false ? 'none' : 'flex' }}
             />
             <TextField
               margin="normal"
@@ -124,7 +141,7 @@ const [ dni, setDni ] = React.useState([]);
               id="password"
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
-              sx={{display: isDigital === false ? 'none' :  'flex' }}
+              sx={{ display: isDigital === false ? 'none' : 'flex' }}
             />
             <TextField
               margin="normal"
@@ -136,16 +153,16 @@ const [ dni, setDni ] = React.useState([]);
               value={dni}
               id="dni"
               onChange={(e) => setDni(e.target.value)}
-              
+
             />
-           <Typography>
-            Por favor ingrese con usuario y contraseña de FirmaYa
-           </Typography>
-           <FormControlLabel
-              control={<Checkbox value="remember" color="primary" name='check' id='check' onChange={(e) => setIsDigital(false)} />}
+            <Typography>
+              Por favor ingrese con usuario y contraseña de FirmaYa
+            </Typography>
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" name='check' id='check' onChange={(e) => changeSubmit()} />}
               label="No tengo certificado digital"
             />
-         
+
             <Button
               type="submit"
               fullWidth
@@ -154,7 +171,7 @@ const [ dni, setDni ] = React.useState([]);
             >
               Ingresar
             </Button>
-          
+
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
