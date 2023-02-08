@@ -34,14 +34,6 @@ export default function SignIn() {
   const [isDigital, setIsDigital] = React.useState(true);
   const [dni, setDni] = React.useState([]);
 
-  const changeSubmit = () => {
-    if (isDigital) {
-      setIsDigital(!isDigital)
-    } else {
-      setIsDigital(!isDigital)
-    }
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (isDigital) {
@@ -159,7 +151,7 @@ export default function SignIn() {
               Por favor ingrese con usuario y contraseña de FirmaYa
             </Typography>
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" name='check' id='check' onChange={(e) => changeSubmit()} />}
+              control={<Checkbox value="remember" color="primary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
               label="No tengo certificado digital"
             />
 
