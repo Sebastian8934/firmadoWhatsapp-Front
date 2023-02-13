@@ -157,7 +157,7 @@ export default function SignIn() {
             />
 
             <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
-              Add Image
+              Add PDF
             </Button>
 
             <DropzoneDialogBase
@@ -200,7 +200,7 @@ export default function SignIn() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Ingresar
+              Firmar
             </Button>
 
           </Box>
