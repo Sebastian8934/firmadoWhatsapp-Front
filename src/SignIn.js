@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { DropzoneDialogBase } from 'material-ui-dropzone';
 
 import config from "./config/config.json"
 
@@ -33,6 +34,10 @@ export default function SignIn() {
   const [password, setPassword] = React.useState([]);
   const [isDigital, setIsDigital] = React.useState(true);
   const [dni, setDni] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [fileObjects, setFileObjects] = React.useState([]);
+  const [base64, setBase64] = React.useState([])
+  let base = [];
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -53,9 +58,11 @@ export default function SignIn() {
       })
       if (res.status === 200) {
         alert('Documento firmado y enviado exitosamente')
+
         setDNumber('')
         setPassword('')
         setDni('')
+        window.location = '/form'
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
@@ -79,6 +86,7 @@ export default function SignIn() {
         setDNumber('')
         setPassword('')
         setDni('')
+        window.location = '/form'
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
@@ -146,6 +154,37 @@ export default function SignIn() {
               id="dni"
               onChange={(e) => setDni(e.target.value)}
 
+            />
+
+            <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
+              Add Image
+            </Button>
+
+            <DropzoneDialogBase
+              acceptedFiles={['.pdf']}
+              fileObjects={fileObjects}
+              cancelButtonText={"cancel"}
+              submitButtonText={"submit"}
+              filesLimit={1}
+              maxFileSize={5000000}
+              open={open}
+              onAdd={newFileObjs => {
+                base = newFileObjs[0].data.split(',')
+                setFileObjects(newFileObjs);
+                setBase64(base[1])
+              }}
+              onDelete={deleteFileObj => {
+                setFileObjects([])
+                setOpen(false)
+                console.log('onDelete', deleteFileObj);
+              }}
+              onClose={() => setOpen(false)}
+              onSave={() => {
+                console.log(base64);
+                setOpen(false);
+              }}
+              showPreviews={true}
+              showFileNamesInPreview={true}
             />
             <Typography>
               Por favor ingrese con usuario y contraseña de FirmaYa

@@ -2,7 +2,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route} from 'react-router-dom'
 import SignIn from './SignIn';
 import SignUp from './SingUp';
-import home from './home';
+import Home from './home';
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
    <Routes>
     <Route path='/' element={<SignIn/>}/>
     <Route path='/signUp' element={<SignUp/>}/>  
-    <Route path='/form' element={<home/>}/> 
+    <Route path='/form' element={<Home/>}/> 
     </Routes>
    </BrowserRouter>
   );
