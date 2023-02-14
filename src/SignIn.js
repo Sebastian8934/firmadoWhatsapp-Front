@@ -12,9 +12,10 @@ import { Checkbox, FormControlLabel } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DropzoneDialogBase } from 'mui-file-dropzone';
 
+import axios from 'axios';
 import config from "./config/config.json"
 
- function Copyright(props) {
+function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
@@ -30,6 +31,8 @@ import config from "./config/config.json"
 const theme = createTheme();
 
 export default function SignIn() {
+  
+  
   const [dNumber, setDNumber] = React.useState([]);
   const [password, setPassword] = React.useState([]);
   const [isDigital, setIsDigital] = React.useState(true);
@@ -37,8 +40,26 @@ export default function SignIn() {
   const [open, setOpen] = React.useState(false);
   const [fileObjects, setFileObjects] = React.useState([]);
   const [base64, setBase64] = React.useState([])
+  const [userInfo, setUserInfo] = React.useState({})
   let base = [];
+  
+  React.useEffect(() => {
+    async function getUserData() {
+      let cryptrUserData = window.location.search.substring(1).split('=');
+      let res = await axios.post(config.ipMachine + 'message/cryptr', { cryptr: cryptrUserData[1] })
+      if (res.status === 200) {
+        console.log("USER!: ", res.data.result.userDecryptr);
+        setUserInfo(res.data.result.userDecryptr);
+        //window.location = '/form'
+      } else {
+        alert("Lo sentimos algo salio mal")
+      }
+    }
 
+    getUserData();
+    
+  }, []);
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (isDigital) {
@@ -52,7 +73,8 @@ export default function SignIn() {
           isDigital: isDigital,
           numeroDocumento: dNumber,
           clave: password,
-          dni: dni
+          base64: base64,
+          dni: userInfo.dni
 
         })
       })
@@ -62,7 +84,7 @@ export default function SignIn() {
         setDNumber('')
         setPassword('')
         setDni('')
-        window.location = '/form'
+        //window.location = '/form'
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
@@ -78,7 +100,8 @@ export default function SignIn() {
         },
         body: JSON.stringify({
           isDigital: isDigital,
-          dni: dni
+          dni: userInfo.dni,
+          base64: base64
         })
       })
       if (res.status === 200) {
@@ -86,7 +109,7 @@ export default function SignIn() {
         setDNumber('')
         setPassword('')
         setDni('')
-        window.location = '/form'
+        //window.location = '/form'
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
@@ -113,7 +136,7 @@ export default function SignIn() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            ¡Bienvenido!
+            ¡Bienvenido {userInfo.name}!
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -143,6 +166,8 @@ export default function SignIn() {
               onChange={(e) => setPassword(e.target.value)}
               sx={{ display: isDigital === false ? 'none' : 'flex' }}
             />
+            {
+/*
             <TextField
               margin="normal"
               required
@@ -155,6 +180,8 @@ export default function SignIn() {
               onChange={(e) => setDni(e.target.value)}
 
             />
+            */
+            }
 
             <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
               Add PDF
@@ -172,8 +199,6 @@ export default function SignIn() {
                 base = newFileObjs[0].data.split(',')
                 setFileObjects(newFileObjs);
                 setBase64(base[1])
-                let a = window.location.search.substring(1).split('=');
-               
               }}
               onDelete={deleteFileObj => {
                 setFileObjects([])
