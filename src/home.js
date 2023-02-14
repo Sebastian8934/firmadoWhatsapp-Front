@@ -12,7 +12,6 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { DropzoneArea } from 'material-ui-dropzone';
 
 
 
@@ -50,10 +49,7 @@ const theme =  createTheme();
             Drag & Drop
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <DropzoneArea>
             
-                    
-            </DropzoneArea>
             <Button
               type="submit"
               fullWidth

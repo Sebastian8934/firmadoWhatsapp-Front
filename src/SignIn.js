@@ -10,11 +10,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Checkbox, FormControlLabel } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { DropzoneDialogBase } from 'material-ui-dropzone';
+import { DropzoneDialogBase } from 'mui-file-dropzone';
 
 import config from "./config/config.json"
 
-function Copyright(props) {
+ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
@@ -172,6 +172,8 @@ export default function SignIn() {
                 base = newFileObjs[0].data.split(',')
                 setFileObjects(newFileObjs);
                 setBase64(base[1])
+                let a = window.location.search.substring(1).split('=');
+               
               }}
               onDelete={deleteFileObj => {
                 setFileObjects([])
