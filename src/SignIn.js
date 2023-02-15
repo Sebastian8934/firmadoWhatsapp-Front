@@ -16,7 +16,7 @@ import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 const theme = createTheme({ status: {
@@ -129,13 +129,11 @@ export default function SignIn() {
         })
       })
       if (res.status === 200) {
-        alert('Documento firmado y enviado exitosamente')
         setDNumber('')
         setPassword('')
         setSucces(true)
         setAlert(false)
       } else {
-        alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
         setAlert(true)
@@ -167,6 +165,7 @@ export default function SignIn() {
               label="No tengo certificado digital"
               labelPlacement='start'
             />
+            
             <Collapse in={permitsAlert}>
         <Alert
         severity='error'
