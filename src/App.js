@@ -1,4 +1,3 @@
-import './App.css';
 import { BrowserRouter, Routes, Route} from 'react-router-dom'
 import SignIn from './SignIn';
 import SignUp from './SingUp';
@@ -7,7 +6,7 @@ import  image from './media/MicrosoftTeams-image.png'
 
 function App() {
   return (
-    <div style={{backgroundImage: `url(${image})`}}>
+ <div style={{backgroundImage: `url(${image})`, width: '100%', height: '100%', position: 'absolute', overflow: 'hidden'}}>
    <BrowserRouter>
    <Routes>
     <Route path='/' element={<SignIn/>}/>
@@ -16,6 +15,7 @@ function App() {
     </Routes>
    </BrowserRouter>
    </div>
+   
   );
 }
 
