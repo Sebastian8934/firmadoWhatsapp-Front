@@ -5,9 +5,9 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import {  FormControlLabel, Switch } from '@mui/material';
+import { FormControlLabel, Switch } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { DropzoneDialogBase } from 'mui-file-dropzone';
+import { DropzoneDialogBase, DropzoneArea } from 'mui-file-dropzone';
 import Image from 'mui-image';
 import axios from 'axios';
 import config from "./config/config.json"
@@ -17,75 +17,84 @@ import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
+import Swal from 'sweetalert2';
 
 
-const theme = createTheme({ status: {
-  danger: '#e53e3e',
-},
-palette: {
-  primary: {
-    main: '#063970',
-    darker: '#053e85',
+const theme = createTheme({
+  status: {
+    danger: '#e53e3e',
   },
-  neutral: {
-    main: '#64748B',
-    contrastText: '#fff',
+  palette: {
+    primary: {
+      main: '#063970',
+      darker: '#053e85',
+    },
+    neutral: {
+      main: '#64748B',
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#397006'
+    }
   },
-  secondary:{
-    main: '#397006'
-  }
-},
-root: {
-  justifyContent: 'center'
-},
-overrides: {
-  MuiCssBaseline: {
-    "@global": {
-      body: {
-        backgroundImage:
-          "url(./media/photo-1534796636912-3b95b3ab5986.jpeg)"
+  root: {
+    justifyContent: 'center'
+  },
+  overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        body: {
+          backgroundImage:
+            "url(./media/photo-1534796636912-3b95b3ab5986.jpeg)"
+        }
       }
     }
   }
-}
 });
 
 export default function SignIn() {
-  
-  
+
+
   const [dNumber, setDNumber] = React.useState([]);
   const [password, setPassword] = React.useState([]);
-  const [isDigital, setIsDigital] = React.useState(true);
+  const [isDigital, setIsDigital] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [fileObjects, setFileObjects] = React.useState([]);
   const [base64, setBase64] = React.useState([]);
   const [userInfo, setUserInfo] = React.useState({});
   const [failalert, setAlert] = React.useState(false);
-  const [succesAlert, setSucces ] =React.useState(false);
-  const [permitsAlert, setPermitsA ] =React.useState(false);
+  const [succesAlert, setSucces] = React.useState(false);
+  const [permitsAlert, setPermitsA] = React.useState(false);
   const [isDisabled, setDisabled] = React.useState(false);
   let base = [];
-  
+
   React.useEffect(() => {
     async function getUserData() {
       let cryptrUserData = window.location.search.substring(1).split('=');
       await axios.post(config.ipMachine + 'message/cryptr', { cryptr: cryptrUserData[1] }).then(
-        (res) =>{
+        (res) => {
           console.log("USER!: ", res.data.result.userDecryptr);
           setUserInfo(res.data.result.userDecryptr);
         }
-      ).catch(err =>{
-        setPermitsA(true)
-        setDisabled(true)
+      ).catch(err => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Sentimos los inconvenientes no parece tener credenciales válidas',
+        }).then(
+          function () {
+            setDisabled(true)
+        window.close()
+          })
       })
-     
-     
+
+
     }
 
     getUserData();
-    
+
   }, []);
-  
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (isDigital) {
@@ -107,13 +116,20 @@ export default function SignIn() {
       if (res.status === 200) {
         setDNumber('')
         setPassword('')
-        setSucces(true)
-        setAlert(false)
+        Swal.fire({
+          icon: 'success',
+          title: 'Exito',
+          text: 'El documneto ha sido firmado exitosamente', 
+          showConfirmButton: true,
+        }).then(window.close())
       } else {
         setDNumber('')
         setPassword('')
-        setAlert(true)
-        setSucces(false)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Algo ha salido mal',
+        })
       }
     } else {
       let res = await fetch(config.ipMachine + 'signature/', {
@@ -131,13 +147,20 @@ export default function SignIn() {
       if (res.status === 200) {
         setDNumber('')
         setPassword('')
-        setSucces(true)
-        setAlert(false)
+        Swal.fire({
+          icon: 'success',
+          title: 'Exito',
+          text: 'El documneto ha sido firmado exitosamente', 
+          showConfirmButton: true,
+        }).then(window.close())
       } else {
         setDNumber('')
         setPassword('')
-        setAlert(true)
-        setSucces(false)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Algo ha salido mal',
+        })
       }
     }
 
@@ -145,81 +168,37 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs" sx={{ alignItems: 'center' , borderRadius: '16px', backgroundColor: '#fff'}} >
-        <CssBaseline  />
+      <Container component="main" maxWidth="xs" sx={{ alignItems: 'center', borderRadius: '16px', backgroundColor: '#fff' }} >
+        <CssBaseline />
         <Box
           sx={{
             marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            
+
           }}
-        >   
-        <Image src={`${img}`} width={100} sx={{ marginTop: 2, marginBottom: 2}}/>
-          <Typography component="h1" variant="h5">
-            ¡Bienvenido {userInfo.name}!
+        >
+          <Image src={`${img}`} width={100} sx={{ marginTop: 2 }} />
+          <Typography component="h1" variant="h4" color={'#063970'}>
+            Bienvenido
           </Typography>
+          <Typography>{userInfo.name}</Typography>
           <FormControlLabel
-              control={<Switch value="remember" color="secondary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
-              label="No tengo certificado digital"
-              labelPlacement='start'
-            />
-            
-            <Collapse in={permitsAlert}>
-        <Alert
-        severity='error'
-            
-          sx={{ mb: 2 }}
-        >
-          ¡Lo sentimos no tiene permisos para firmar!
-        </Alert>
-      </Collapse>
-      <Collapse in={failalert}>
-        <Alert
-        severity='error'
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{ mb: 2 }}
-        >
-          ¡Lo sentimos algo salio mal con el proceso!
-        </Alert>
-      </Collapse>
-      <Collapse in={succesAlert}>
-        <Alert
-        severity='success'
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setSucces(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{ mb: 2 }}
-        >
-          ¡Documento firmado correctamente!
-        </Alert>
-      </Collapse>
-      
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ marginTop: 8,
+            control={<Switch value="remember" color="secondary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
+            label="Poseo certificado digital"
+            labelPlacement='start'
+            componentsProps={{ typography: { width: 300 } }}
+
+          />
+
+
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{
+            marginTop: 1,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center', }}>
+            alignItems: 'center',
+          }}>
             <TextField
               margin="normal"
               required
@@ -231,7 +210,7 @@ export default function SignIn() {
               autoFocus
               value={dNumber}
               onChange={(e) => setDNumber(e.currentTarget.value)}
-              sx={{ display: isDigital === false ? 'none' : 'flex' , backgroundColor: '#fff', borderRadius: '16px', border : 0, width: '400px'}}
+              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', border: 0, width: '352px' }}
             />
             <TextField
               margin="normal"
@@ -244,23 +223,17 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', width: '400px'}}
+              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', width: '352px' }}
             />
-            {
-
-            }
-            <Button variant="contained"  color="primary" onClick={() => setOpen(true)} sx={{width: '400px'}}>
-              Add PDF
-            </Button>
             
-            <DropzoneDialogBase
+            <DropzoneArea
               acceptedFiles={['.pdf']}
+              showFileNames
               fileObjects={fileObjects}
               cancelButtonText={"cancel"}
               submitButtonText={"submit"}
               filesLimit={1}
               maxFileSize={5000000}
-              open={open}
               onAdd={newFileObjs => {
                 base = newFileObjs[0].data.split(',')
                 setFileObjects(newFileObjs);
@@ -277,17 +250,16 @@ export default function SignIn() {
                 console.log(base64);
                 setOpen(false);
               }}
-              showPreviews={true}
-              showFileNamesInPreview={true}
+
             />
-           
+
 
             <Button
-            disabled={isDisabled}
+              disabled={isDisabled}
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 , width: '400px'}}
+              sx={{ mt: 3, mb: 2, width: '352px' }}
             >
               Firmar
             </Button>
