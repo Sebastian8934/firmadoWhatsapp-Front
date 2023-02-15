@@ -1,35 +1,23 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { Checkbox, FormControlLabel, Switch } from '@mui/material';
+import {  FormControlLabel, Switch } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DropzoneDialogBase } from 'mui-file-dropzone';
-import Grid from '@mui/material/Grid'
 import Image from 'mui-image';
 import axios from 'axios';
 import config from "./config/config.json"
 import img from './media/image.png'
-import { width } from '@mui/system';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+
 
 const theme = createTheme({ status: {
   danger: '#e53e3e',
@@ -68,23 +56,30 @@ export default function SignIn() {
   const [dNumber, setDNumber] = React.useState([]);
   const [password, setPassword] = React.useState([]);
   const [isDigital, setIsDigital] = React.useState(true);
-  const [dni, setDni] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [fileObjects, setFileObjects] = React.useState([]);
-  const [base64, setBase64] = React.useState([])
-  const [userInfo, setUserInfo] = React.useState({})
+  const [base64, setBase64] = React.useState([]);
+  const [userInfo, setUserInfo] = React.useState({});
+  const [failalert, setAlert] = React.useState(false);
+  const [succesAlert, setSucces ] =React.useState(false);
+  const [permitsAlert, setPermitsA ] =React.useState(false);
+  const [isDisabled, setDisabled] = React.useState(false);
   let base = [];
   
   React.useEffect(() => {
     async function getUserData() {
       let cryptrUserData = window.location.search.substring(1).split('=');
-      let res = await axios.post(config.ipMachine + 'message/cryptr', { cryptr: cryptrUserData[1] })
-      if (res.status === 200) {
-        console.log("USER!: ", res.data.result.userDecryptr);
-        setUserInfo(res.data.result.userDecryptr);
-      } else {
-        alert("Lo sentimos algo salio mal")
-      }
+      await axios.post(config.ipMachine + 'message/cryptr', { cryptr: cryptrUserData[1] }).then(
+        (res) =>{
+          console.log("USER!: ", res.data.result.userDecryptr);
+          setUserInfo(res.data.result.userDecryptr);
+        }
+      ).catch(err =>{
+        setPermitsA(true)
+        setDisabled(true)
+      })
+     
+     
     }
 
     getUserData();
@@ -110,13 +105,15 @@ export default function SignIn() {
         })
       })
       if (res.status === 200) {
-        alert('Documento firmado y enviado exitosamente')
         setDNumber('')
         setPassword('')
+        setSucces(true)
+        setAlert(false)
       } else {
-        alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
+        setAlert(true)
+        setSucces(false)
       }
     } else {
       let res = await fetch(config.ipMachine + 'signature/', {
@@ -135,10 +132,14 @@ export default function SignIn() {
         alert('Documento firmado y enviado exitosamente')
         setDNumber('')
         setPassword('')
+        setSucces(true)
+        setAlert(false)
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
+        setAlert(true)
+        setSucces(false)
       }
     }
 
@@ -166,6 +167,56 @@ export default function SignIn() {
               label="No tengo certificado digital"
               labelPlacement='start'
             />
+            <Collapse in={permitsAlert}>
+        <Alert
+        severity='error'
+            
+          sx={{ mb: 2 }}
+        >
+          ¡Lo sentimos no tiene permisos para firmar!
+        </Alert>
+      </Collapse>
+      <Collapse in={failalert}>
+        <Alert
+        severity='error'
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setAlert(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          ¡Lo sentimos algo salio mal con el proceso!
+        </Alert>
+      </Collapse>
+      <Collapse in={succesAlert}>
+        <Alert
+        severity='success'
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setSucces(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          ¡Documento firmado correctamente!
+        </Alert>
+      </Collapse>
+      
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
@@ -233,6 +284,7 @@ export default function SignIn() {
            
 
             <Button
+            disabled={isDisabled}
               type="submit"
               fullWidth
               variant="contained"
