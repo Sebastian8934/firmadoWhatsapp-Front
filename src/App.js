@@ -3,9 +3,11 @@ import { BrowserRouter, Routes, Route} from 'react-router-dom'
 import SignIn from './SignIn';
 import SignUp from './SingUp';
 import Home from './home';
+import  image from './media/MicrosoftTeams-image.png'
 
 function App() {
   return (
+    <div style={{backgroundImage: `url(${image})`}}>
    <BrowserRouter>
    <Routes>
     <Route path='/' element={<SignIn/>}/>
@@ -13,6 +15,7 @@ function App() {
     <Route path='/form' element={<Home/>}/> 
     </Routes>
    </BrowserRouter>
+   </div>
   );
 }
 

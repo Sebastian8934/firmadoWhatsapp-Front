@@ -8,12 +8,15 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { Checkbox, FormControlLabel, Switch } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DropzoneDialogBase } from 'mui-file-dropzone';
-
+import Grid from '@mui/material/Grid'
+import Image from 'mui-image';
 import axios from 'axios';
 import config from "./config/config.json"
+import img from './media/image.png'
+import { width } from '@mui/system';
 
 function Copyright(props) {
   return (
@@ -28,7 +31,36 @@ function Copyright(props) {
   );
 }
 
-const theme = createTheme();
+const theme = createTheme({ status: {
+  danger: '#e53e3e',
+},
+palette: {
+  primary: {
+    main: '#063970',
+    darker: '#053e85',
+  },
+  neutral: {
+    main: '#64748B',
+    contrastText: '#fff',
+  },
+  secondary:{
+    main: '#397006'
+  }
+},
+root: {
+  justifyContent: 'center'
+},
+overrides: {
+  MuiCssBaseline: {
+    "@global": {
+      body: {
+        backgroundImage:
+          "url(./media/photo-1534796636912-3b95b3ab5986.jpeg)"
+      }
+    }
+  }
+}
+});
 
 export default function SignIn() {
   
@@ -50,7 +82,6 @@ export default function SignIn() {
       if (res.status === 200) {
         console.log("USER!: ", res.data.result.userDecryptr);
         setUserInfo(res.data.result.userDecryptr);
-        //window.location = '/form'
       } else {
         alert("Lo sentimos algo salio mal")
       }
@@ -80,16 +111,12 @@ export default function SignIn() {
       })
       if (res.status === 200) {
         alert('Documento firmado y enviado exitosamente')
-
         setDNumber('')
         setPassword('')
-        setDni('')
-        //window.location = '/form'
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
-        setDni('')
       }
     } else {
       let res = await fetch(config.ipMachine + 'signature/', {
@@ -108,13 +135,10 @@ export default function SignIn() {
         alert('Documento firmado y enviado exitosamente')
         setDNumber('')
         setPassword('')
-        setDni('')
-        //window.location = '/form'
       } else {
         alert('Cuidado las credenciales no se encuentran.')
         setDNumber('')
         setPassword('')
-        setDni('')
       }
     }
 
@@ -122,24 +146,30 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs" >
-        <CssBaseline />
+      <Container component="main" maxWidth="xs" sx={{ alignItems: 'center' , borderRadius: '16px', backgroundColor: '#fff'}} >
+        <CssBaseline  />
         <Box
           sx={{
             marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            
           }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
+        >   
+        <Image src={`${img}`} width={100} sx={{ marginTop: 2, marginBottom: 2}}/>
           <Typography component="h1" variant="h5">
             ¡Bienvenido {userInfo.name}!
           </Typography>
-
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <FormControlLabel
+              control={<Switch value="remember" color="secondary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
+              label="No tengo certificado digital"
+              labelPlacement='start'
+            />
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center', }}>
             <TextField
               margin="normal"
               required
@@ -151,7 +181,7 @@ export default function SignIn() {
               autoFocus
               value={dNumber}
               onChange={(e) => setDNumber(e.currentTarget.value)}
-              sx={{ display: isDigital === false ? 'none' : 'flex' }}
+              sx={{ display: isDigital === false ? 'none' : 'flex' , backgroundColor: '#fff', borderRadius: '16px', border : 0, width: '400px'}}
             />
             <TextField
               margin="normal"
@@ -164,29 +194,15 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ display: isDigital === false ? 'none' : 'flex' }}
+              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', width: '400px'}}
             />
             {
-/*
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="dni"
-              label="DNI"
-              type="dni"
-              value={dni}
-              id="dni"
-              onChange={(e) => setDni(e.target.value)}
 
-            />
-            */
             }
-
-            <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
+            <Button variant="contained"  color="primary" onClick={() => setOpen(true)} sx={{width: '400px'}}>
               Add PDF
             </Button>
-
+            
             <DropzoneDialogBase
               acceptedFiles={['.pdf']}
               fileObjects={fileObjects}
@@ -204,6 +220,7 @@ export default function SignIn() {
                 setFileObjects([])
                 setOpen(false)
                 console.log('onDelete', deleteFileObj);
+
               }}
               onClose={() => setOpen(false)}
               onSave={() => {
@@ -213,26 +230,18 @@ export default function SignIn() {
               showPreviews={true}
               showFileNamesInPreview={true}
             />
-            <Typography>
-              Por favor ingrese con usuario y contraseña de FirmaYa
-            </Typography>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
-              label="No tengo certificado digital"
-            />
+           
 
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2 , width: '400px'}}
             >
               Firmar
             </Button>
-
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
   );
