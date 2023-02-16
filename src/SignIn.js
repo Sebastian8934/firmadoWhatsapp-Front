@@ -84,9 +84,7 @@ export default function SignIn() {
 
   React.useEffect(() => {
     if (close) {
-      let ventana = window.self;
-      ventana.opener = window.self;
-      ventana.close()
+      window.close()
     }
   }, [close])
   
@@ -196,7 +194,7 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs" sx={{ alignItems: 'center', borderRadius: '16px', backgroundColor: '#fff' }} >
+      <Container component="main" maxWidth="xs" sx={{ alignItems: 'center', borderRadius: '16px', backgroundColor: '#fff'}} >
         <CssBaseline />
         <Box
           sx={{
@@ -230,7 +228,7 @@ export default function SignIn() {
               required
               fullWidth
               id="documentNumber"
-              label="Numero de documento"
+              label="Usuario Firmaya"
               name="documentNumber"
               autoComplete="documentNumber"
               autoFocus
