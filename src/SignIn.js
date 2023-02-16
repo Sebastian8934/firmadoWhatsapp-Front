@@ -7,18 +7,12 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { FormControlLabel, Switch } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { DropzoneDialogBase, DropzoneArea } from 'mui-file-dropzone';
+import { DropzoneArea } from 'mui-file-dropzone';
 import Image from 'mui-image';
 import axios from 'axios';
 import config from "./config/config.json"
 import img from './media/image.png'
-import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import Collapse from '@mui/material/Collapse';
-import CloseIcon from '@mui/icons-material/Close';
-import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2';
-
 
 const theme = createTheme({
   status: {
@@ -54,26 +48,21 @@ const theme = createTheme({
 
 export default function SignIn() {
 
-
   const [dNumber, setDNumber] = React.useState([]);
   const [password, setPassword] = React.useState([]);
   const [isDigital, setIsDigital] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
   const [fileObjects, setFileObjects] = React.useState([]);
-  const [base64, setBase64] = React.useState([]);
+  const [base64, setBase64] = React.useState("");
   const [userInfo, setUserInfo] = React.useState({});
-  const [failalert, setAlert] = React.useState(false);
-  const [succesAlert, setSucces] = React.useState(false);
-  const [permitsAlert, setPermitsA] = React.useState(false);
   const [isDisabled, setDisabled] = React.useState(false);
-  let base = [];
+
+  const [close, setClose] = React.useState(false);
 
   React.useEffect(() => {
     async function getUserData() {
       let cryptrUserData = window.location.search.substring(1).split('=');
       await axios.post(config.ipMachine + 'message/cryptr', { cryptr: cryptrUserData[1] }).then(
         (res) => {
-          console.log("USER!: ", res.data.result.userDecryptr);
           setUserInfo(res.data.result.userDecryptr);
         }
       ).catch(err => {
@@ -84,87 +73,126 @@ export default function SignIn() {
         }).then(
           function () {
             setDisabled(true)
-        window.close()
+            setClose(true)
           })
       })
-
-
     }
-
     getUserData();
+
 
   }, []);
 
+  React.useEffect(() => {
+    if (close) {
+      let ventana = window.self;
+      ventana.opener = window.self;
+      ventana.close()
+    }
+  }, [close])
+  
+
   const handleSubmit = async (event) => {
+    Swal.fire({
+      title: 'Enviando',
+      text: 'Firmando Documentos',
+      didOpen: () =>{
+        Swal.showLoading()
+      }
+    })
     event.preventDefault();
     if (isDigital) {
-      let res = await fetch(config.ipMachine + 'signature/', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          isDigital: isDigital,
-          numeroDocumento: dNumber,
-          clave: password,
-          base64: base64,
-          dni: userInfo.dni
+      axios.post(config.ipMachine + 'signature/', {
+        isDigital: isDigital,
+        numeroDocumento: dNumber,
+        clave: password,
+        base64: base64,
+        dni: userInfo.dni
 
-        })
-      })
-      if (res.status === 200) {
+      }).then(() => {
         setDNumber('')
         setPassword('')
         Swal.fire({
           icon: 'success',
           title: 'Exito',
-          text: 'El documneto ha sido firmado exitosamente', 
+          text: 'El documento ha sido firmado exitosamente',
           showConfirmButton: true,
-        }).then(window.close())
-      } else {
+        }).then(function (){setClose(true)})
+      }).catch((err) => {
+        console.log(err.response.data.result.errors);
+        let key = Object.keys(err.response.data.result.errors)
+        let message = `${key}: ${err.response.data.result.errors[key]}` || "Algo ha salido mal"
         setDNumber('')
         setPassword('')
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Algo ha salido mal',
+          text: message,
         })
-      }
+      });
     } else {
-      let res = await fetch(config.ipMachine + 'signature/', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          isDigital: isDigital,
-          dni: userInfo.dni,
-          base64: base64
-        })
-      })
-      if (res.status === 200) {
+      await axios.post(config.ipMachine + 'signature/', {
+        isDigital: isDigital,
+        dni: userInfo.dni,
+        base64: base64
+      }).then(() => {
         setDNumber('')
         setPassword('')
         Swal.fire({
           icon: 'success',
           title: 'Exito',
-          text: 'El documneto ha sido firmado exitosamente', 
+          text: 'El documento ha sido firmado exitosamente',
           showConfirmButton: true,
-        }).then(window.close())
-      } else {
+        }).then(function (){setClose(true)})
+      }).catch((err) => {
+        console.log(err.response.data.result.errors);
+        let key = Object.keys(err.response.data.result.errors)
+        let message = `${key}: ${err.response.data.result.errors[key]}` || "Algo ha salido mal"
         setDNumber('')
         setPassword('')
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Algo ha salido mal',
+          text: message,
         })
-      }
+
+      });
+
     }
 
   };
+
+  React.useEffect(() => {
+    if (fileObjects[0] !== undefined) {
+      getBase64(fileObjects[0])
+        .then(result => {
+          result = result.split(",");
+          setBase64(result[1])
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
+  }, [fileObjects, base64]);
+
+  function getBase64(file) {
+    return new Promise(resolve => {
+      let baseURL = "";
+      let reader = new FileReader();
+
+      reader.readAsDataURL(file);
+
+      reader.onload = () => {
+        baseURL = reader.result;
+        resolve(baseURL);
+      };
+    });
+  }
+
+  async function addPdfArea(newFileObjs) {
+    if (newFileObjs[0] !== undefined) {
+      setFileObjects(newFileObjs)
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -184,21 +212,19 @@ export default function SignIn() {
             Bienvenido
           </Typography>
           <Typography>{userInfo.name}</Typography>
-          <FormControlLabel
-            control={<Switch value="remember" color="secondary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
-            label="Poseo certificado digital"
-            labelPlacement='start'
-            componentsProps={{ typography: { width: 300 } }}
-
-          />
-
-
+          
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{
             marginTop: 1,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
           }}>
+            <FormControlLabel
+            control={<Switch value="remember" color="secondary" name='check' id='check' onChange={(e) => setIsDigital(!isDigital)} />}
+            label="Poseo certificado digital"
+            labelPlacement='start'
+            sx={{justifyContent: "space-between",width:"100%",margin:0}}
+          />
             <TextField
               margin="normal"
               required
@@ -210,7 +236,7 @@ export default function SignIn() {
               autoFocus
               value={dNumber}
               onChange={(e) => setDNumber(e.currentTarget.value)}
-              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', border: 0, width: '352px' }}
+              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', border: 0, width: '100%' }}
             />
             <TextField
               margin="normal"
@@ -223,9 +249,9 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', width: '352px' }}
+              sx={{ display: isDigital === false ? 'none' : 'flex', backgroundColor: '#fff', borderRadius: '16px', width: '100%' }}
             />
-            
+
             <DropzoneArea
               acceptedFiles={['.pdf']}
               showFileNames
@@ -234,23 +260,13 @@ export default function SignIn() {
               submitButtonText={"submit"}
               filesLimit={1}
               maxFileSize={5000000}
-              onAdd={newFileObjs => {
-                base = newFileObjs[0].data.split(',')
-                setFileObjects(newFileObjs);
-                setBase64(base[1])
+              onChange={(newFileObjs) => {
+                addPdfArea(newFileObjs)
+
               }}
               onDelete={deleteFileObj => {
                 setFileObjects([])
-                setOpen(false)
-                console.log('onDelete', deleteFileObj);
-
               }}
-              onClose={() => setOpen(false)}
-              onSave={() => {
-                console.log(base64);
-                setOpen(false);
-              }}
-
             />
 
 
@@ -259,7 +275,7 @@ export default function SignIn() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, width: '352px' }}
+              sx={{ mt: 3, mb: 2, width: '100%' }}
             >
               Firmar
             </Button>

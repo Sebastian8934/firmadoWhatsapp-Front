@@ -6,7 +6,7 @@ import  image from './media/MicrosoftTeams-image.png'
 
 function App() {
   return (
- <div style={{backgroundImage: `url(${image})`, width: '100%', height: '100%', position: 'absolute', overflow: 'hidden'}}>
+ <div style={{backgroundImage: `url(${image})`, width: '100%', height: '100%', position: 'absolute', overflow: 'auto'}}>
    <BrowserRouter>
    <Routes>
     <Route path='/' element={<SignIn/>}/>
