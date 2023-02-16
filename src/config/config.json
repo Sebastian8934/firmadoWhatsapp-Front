@@ -1,5 +1,6 @@
 {
-    "ipMachine": "http://localhost:90/v1/",
+    "ipMachineDEV": "http://localhost:90/v1/",
+    "ipMachine": "https://test-hydraservice.onrender.com/v1/",
     "cryptr": "5d669613cd01fd216517c80c"
         
 }
